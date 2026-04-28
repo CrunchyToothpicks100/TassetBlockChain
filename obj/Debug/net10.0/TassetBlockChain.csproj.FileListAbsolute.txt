@@ -1,0 +1,14 @@
+C:\Users\jtass\oliver\repos\TassetBlockChain\bin\Debug\net10.0\TassetBlockChain.exe
+C:\Users\jtass\oliver\repos\TassetBlockChain\bin\Debug\net10.0\TassetBlockChain.deps.json
+C:\Users\jtass\oliver\repos\TassetBlockChain\bin\Debug\net10.0\TassetBlockChain.runtimeconfig.json
+C:\Users\jtass\oliver\repos\TassetBlockChain\bin\Debug\net10.0\TassetBlockChain.dll
+C:\Users\jtass\oliver\repos\TassetBlockChain\bin\Debug\net10.0\TassetBlockChain.pdb
+C:\Users\jtass\oliver\repos\TassetBlockChain\obj\Debug\net10.0\TassetBlockChain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jtass\oliver\repos\TassetBlockChain\obj\Debug\net10.0\TassetBlockChain.AssemblyInfoInputs.cache
+C:\Users\jtass\oliver\repos\TassetBlockChain\obj\Debug\net10.0\TassetBlockChain.AssemblyInfo.cs
+C:\Users\jtass\oliver\repos\TassetBlockChain\obj\Debug\net10.0\TassetBlockChain.csproj.CoreCompileInputs.cache
+C:\Users\jtass\oliver\repos\TassetBlockChain\obj\Debug\net10.0\TassetBlockChain.dll
+C:\Users\jtass\oliver\repos\TassetBlockChain\obj\Debug\net10.0\refint\TassetBlockChain.dll
+C:\Users\jtass\oliver\repos\TassetBlockChain\obj\Debug\net10.0\TassetBlockChain.pdb
+C:\Users\jtass\oliver\repos\TassetBlockChain\obj\Debug\net10.0\TassetBlockChain.genruntimeconfig.cache
+C:\Users\jtass\oliver\repos\TassetBlockChain\obj\Debug\net10.0\ref\TassetBlockChain.dll
