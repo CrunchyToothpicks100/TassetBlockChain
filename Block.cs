@@ -33,7 +33,7 @@ namespace BlockChain
             byte[] staticSuffix = Encoding.UTF8.GetBytes(Data);
 
             // Use all CPU cores
-            int threadCount = Environment.ProcessorCount;
+            int threadCount = Environment.ProcessorCount / 2;
             Console.WriteLine($"Threads: {threadCount}\n");
 
             // Store the FIRST valid result found
@@ -88,7 +88,7 @@ namespace BlockChain
             Hash = firstHash;
         }
 
-        // Compare hash bytes directly against the zero target without converting to a string.
+        // Compare hash bytes directly against the zero target without converting to a string. 00 = One byte of zeros.
         static bool MeetsTarget(ReadOnlySpan<byte> hash, int zeroBytes, bool requireHalfByte)
         {
             // Check full zero bytes

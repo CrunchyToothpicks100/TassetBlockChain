@@ -13,11 +13,8 @@ namespace BlockChain
 
         static void Main(string[] args)
         {
-            int count = 0;
-
             Console.WriteLine("Creating a new block from data file.\n");
             StreamReader fileIn = File.OpenText(INPUT_FILE_NAME);
-            StreamWriter fileOut = new StreamWriter(OUTPUT_FILE_NAME, true);
 
             string blockLines = ReadABlockOfData(fileIn);
             Block block = new Block(blockLines);
@@ -26,20 +23,21 @@ namespace BlockChain
 
             using var cts = new CancellationTokenSource();
 
-            block.MineBlock(
-                difficulty,
-                onHit: (hash, nonce) =>
-                {
-                    Console.WriteLine($"Found hash!");
-                    Console.WriteLine($"Time: {(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - block.TimeStamp) / 1000} seconds\n");
-                    Console.WriteLine($"Data:\t\t{block.Data}\nPrevious Hash:\t{block.previousHash}\nTime Stamp:\t{block.TimeStamp}\nHash:\t\t{hash}\nNonce:\t\t{nonce:n0}\n");
-                    fileOut.WriteLine($"{hash},{block.previousHash},{block.Data},{block.TimeStamp},{nonce}");
-                },
-                stopToken: cts.Token
-            );
-
-            fileIn.Close();
-            fileOut.Close();
+            using (StreamWriter fileOut = new StreamWriter(OUTPUT_FILE_NAME, true)) // append mode = true
+            {
+                block.MineBlock(
+                    difficulty,
+                    onHit: (hash, nonce) =>
+                    {
+                        Console.WriteLine($"Found hash!");
+                        Console.WriteLine($"Time: {(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - block.TimeStamp) / 1000} seconds\n");
+                        Console.WriteLine($"Data:\t\t{block.Data}\nPrevious Hash:\t{block.previousHash}\nTime Stamp:\t{block.TimeStamp}\nHash:\t\t{hash}\nNonce:\t\t{nonce:n0}\n");
+                        fileOut.WriteLine($"{hash},{block.previousHash},{block.Data},{block.TimeStamp},{nonce}");
+                        fileOut.Flush();
+                    },
+                    stopToken: cts.Token
+                );
+            }
         }
 
         static string ReadABlockOfData(StreamReader fileIn)
