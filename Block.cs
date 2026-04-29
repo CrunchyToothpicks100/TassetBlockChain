@@ -1,3 +1,5 @@
+using ILGPU.Runtime.Cuda;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace BlockChain
@@ -10,44 +12,100 @@ namespace BlockChain
         public long TimeStamp { get; set; }
         public ulong Nonce { get; set; }
 
-        public Block(string data, string previousHash)
+        public Block(string data)
         {
+            previousHash = "0";
             Data = data;
-            this.previousHash = previousHash;
             TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            Hash = CalculateHash();
+            Nonce = 0;
+            Hash = BitConverter.ToString(SHA256.HashData(Encoding.UTF8.GetBytes(previousHash + TimeStamp + Nonce + Data)));
         }
 
-        public Block(string data, string previousHash, long timeStamp, string hash, ulong nonce)
+        public void MineBlock(int difficulty, Action<string, ulong>? onHit = null, CancellationToken stopToken = default)
         {
-            Data = data;
-            this.previousHash = previousHash;
-            TimeStamp = timeStamp;
-            Hash = hash;
-            Nonce = nonce;
-        }
+            // 00 = One byte of zeros
+            int zeroBytes = difficulty / 2;
+            bool requireHalfByte = (difficulty % 2) != 0;
 
-        public string CalculateHash() =>
-            StringUtil.ApplySha256(previousHash + TimeStamp + Nonce + Data);
+            // Precompute constant parts of the input
+            // This avoids rebuilding the entire string every iteration
+            byte[] staticPrefix = Encoding.UTF8.GetBytes(previousHash + TimeStamp);
+            byte[] staticSuffix = Encoding.UTF8.GetBytes(Data);
 
-        public void MineBlock(int difficulty)
-        {
-            byte[] ba = Encoding.UTF8.GetBytes(new string('\0', difficulty));
-            string target = BitConverter.ToString(ba);
+            // Use all CPU cores
+            int threadCount = Environment.ProcessorCount;
+            Console.WriteLine($"Threads: {threadCount}\n");
 
-            // Adjust length to account for dashes in BitConverter format (e.g. "00-00-00")
-            difficulty += difficulty / 2;
+            // Store the FIRST valid result found
+            ulong firstNonce = 0;
+            string firstHash = string.Empty;
 
-            while (Hash.Substring(0, difficulty) != target.Substring(0, difficulty))
+            // Lock to protect shared state across threads
+            object lockObj = new();
+
+            // Launch one task per CPU core
+            Task[] tasks = Enumerable.Range(0, threadCount).Select(i => Task.Run(() =>
             {
-                Nonce++;
-                Hash = CalculateHash();
-            }
-            Console.WriteLine($"Block Mined:\t{Hash}");
-            Console.WriteLine($"Time:\t{(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - TimeStamp) / 1000} seconds\n");
+                // Buffer for input: [prefix][nonce][suffix]
+                byte[] inputBuf = new byte[staticPrefix.Length + 20 + staticSuffix.Length];
+                staticPrefix.CopyTo(inputBuf, 0);
+
+                Span<byte> hashBuf = stackalloc byte[32];
+                Span<char> nonceChars = stackalloc char[20];
+                ulong nonce = (ulong)(threadCount + i);
+
+                while (!stopToken.IsCancellationRequested)
+                {
+                    nonce.TryFormat(nonceChars, out int nonceLen);
+                    for (int j = 0; j < nonceLen; j++)
+                        inputBuf[staticPrefix.Length + j] = (byte)nonceChars[j];
+                    staticSuffix.CopyTo(inputBuf, staticPrefix.Length + nonceLen);
+
+                    SHA256.TryHashData(
+                        inputBuf.AsSpan(0, staticPrefix.Length + nonceLen + staticSuffix.Length),
+                        hashBuf, out _);
+
+                    if (MeetsTarget(hashBuf, zeroBytes, requireHalfByte))
+                    {
+                        string hashStr = BitConverter.ToString(hashBuf.ToArray());
+                        lock (lockObj)
+                        {
+                            if (firstHash == string.Empty)
+                            {
+                                firstNonce = nonce;
+                                firstHash = hashStr;
+                            }
+                            onHit?.Invoke(hashStr, nonce);
+                        }
+                    }
+                    nonce += (ulong)(threadCount);
+                }
+            })).ToArray();
+
+            Task.WaitAll(tasks);
+
+            Nonce = firstNonce;
+            Hash = firstHash;
         }
 
-        public override string ToString() =>
-            $"Data:\t\t{Data}\nPrevious Hash:\t{previousHash}\nTime Stamp:\t{TimeStamp}\nHash:\t\t{Hash}\nNonce:\t\t{Nonce:n0}\n";
+        // Compare hash bytes directly against the zero target without converting to a string.
+        static bool MeetsTarget(ReadOnlySpan<byte> hash, int zeroBytes, bool requireHalfByte)
+        {
+            // Check full zero bytes
+            for (int i = 0; i < zeroBytes; i++)
+            {
+                if (hash[i] != 0)
+                    return false;
+            }
+
+            // If odd number of hex zeros, check upper nibble (4 bits)
+            if (requireHalfByte)
+            {
+                if ((hash[zeroBytes] >> 4) != 0)
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

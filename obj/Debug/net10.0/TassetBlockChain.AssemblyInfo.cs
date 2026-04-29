@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TassetBlockChain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+83bc71bd3dff58cdff367bd1ab2af6a359ea0ceb")]
 [assembly: System.Reflection.AssemblyProductAttribute("TassetBlockChain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TassetBlockChain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

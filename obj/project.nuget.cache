@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "rZBB6N1bneg=",
+  "dgSpecHash": "td+uSHEJ2gE=",
   "success": true,
   "projectFilePath": "C:\\Users\\jtass\\oliver\\repos\\TassetBlockChain\\TassetBlockChain.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\jtass\\.nuget\\packages\\ilgpu\\1.5.3\\ilgpu.1.5.3.nupkg.sha512"
+  ],
   "logs": []
 }
