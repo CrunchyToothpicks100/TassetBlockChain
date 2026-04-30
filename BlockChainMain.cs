@@ -6,8 +6,8 @@ namespace BlockChain
 {
     class BlockChainMain
     {
-        const string INPUT_FILE_NAME = @"C:\Users\jtass\oliver\repos\TassetBlockChain\StudentBlockTasset.txt";
-        const string OUTPUT_FILE_NAME = @"C:\Users\jtass\oliver\repos\TassetBlockChain\Success.csv";
+        const string INPUT_FILE_NAME = @"C:\Users\USER\oliver\repos\TassetBlockChain\StudentBlockTasset.txt";
+        const string OUTPUT_FILE_NAME = @"C:\Users\USER\oliver\repos\TassetBlockChain\Success.csv";
         const int BLOCKLINECOUNT = 4;
         static int difficulty = 9; // number of zeros
 
@@ -22,6 +22,7 @@ namespace BlockChain
             Console.WriteLine($"Mining block...\n");
 
             using var cts = new CancellationTokenSource();
+            Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
 
             using (StreamWriter fileOut = new StreamWriter(OUTPUT_FILE_NAME, true)) // append mode = true
             {

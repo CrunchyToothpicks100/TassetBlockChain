@@ -27,13 +27,13 @@ namespace BlockChain
             int zeroBytes = difficulty / 2;
             bool requireHalfByte = (difficulty % 2) != 0;
 
-            // Precompute constant parts of the input
+            // Precompute constant parts of the input: [prefix][nonce][suffix]
             // This avoids rebuilding the entire string every iteration
             byte[] staticPrefix = Encoding.UTF8.GetBytes(previousHash + TimeStamp);
             byte[] staticSuffix = Encoding.UTF8.GetBytes(Data);
 
             // Use all CPU cores
-            int threadCount = Environment.ProcessorCount / 2;
+            int threadCount = Environment.ProcessorCount;
             Console.WriteLine($"Threads: {threadCount}\n");
 
             // Store the FIRST valid result found
@@ -53,13 +53,21 @@ namespace BlockChain
                 Span<byte> hashBuf = stackalloc byte[32];
                 Span<char> nonceChars = stackalloc char[20];
                 ulong nonce = (ulong)(threadCount + i);
+                int prevNonceLen = -1;
 
                 while (!stopToken.IsCancellationRequested)
                 {
                     nonce.TryFormat(nonceChars, out int nonceLen);
+
                     for (int j = 0; j < nonceLen; j++)
                         inputBuf[staticPrefix.Length + j] = (byte)nonceChars[j];
-                    staticSuffix.CopyTo(inputBuf, staticPrefix.Length + nonceLen);
+
+                    // avoids redundantly overwriting the suffix region of inputBuf when the nonce's digit count hasn't changed
+                    if (nonceLen != prevNonceLen)
+                    {
+                        staticSuffix.CopyTo(inputBuf, staticPrefix.Length + nonceLen);
+                        prevNonceLen = nonceLen;
+                    }
 
                     SHA256.TryHashData(
                         inputBuf.AsSpan(0, staticPrefix.Length + nonceLen + staticSuffix.Length),
