@@ -22,7 +22,11 @@ namespace BlockChain
             Console.WriteLine($"Mining block...\n");
 
             using var cts = new CancellationTokenSource();
-            Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
+            Console.CancelKeyPress += (_, e) => { 
+                e.Cancel = true; 
+                cts.Cancel(); 
+                Console.WriteLine("Tasks cancelled safely.");
+            };
 
             using (StreamWriter fileOut = new StreamWriter(OUTPUT_FILE_NAME, true)) // append mode = true
             {
