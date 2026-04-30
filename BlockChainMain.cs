@@ -6,8 +6,8 @@ namespace BlockChain
 {
     class BlockChainMain
     {
-        const string INPUT_FILE_NAME = @"C:\Users\USER\oliver\repos\TassetBlockChain\StudentBlockTasset.txt";
-        const string OUTPUT_FILE_NAME = @"C:\Users\USER\oliver\repos\TassetBlockChain\Success.csv";
+        const string INPUT_FILE_NAME = @"StudentBlockTasset.txt";
+        const string OUTPUT_FILE_NAME = @"Success.csv";
         const int BLOCKLINECOUNT = 4;
         static int difficulty = 9; // number of zeros
 
