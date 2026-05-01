@@ -1,4 +1,10 @@
+# Visual Studio temporary files and build results
 .vs
 bin/
 obj/
+
+# Legacy file
 OldBlock.txt
+
+# Backup file (save locally for redundancy)
+Success_backup.csv
