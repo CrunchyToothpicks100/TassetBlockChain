@@ -1,4 +1,3 @@
-using ILGPU.Runtime.Cuda;
 using System.Security.Cryptography;
 using System.Text;
 

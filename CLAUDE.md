@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-dotnet build          # compile
-dotnet run            # build and run (reads StudentBlockTasset.txt, writes BlockChain.csv)
+dotnet build
+dotnet run
 dotnet run --project TassetBlockChain.csproj
 ```
 
@@ -14,21 +14,30 @@ There are no tests. Build errors are the primary correctness signal.
 
 ## Architecture
 
-A .NET 10 console app that mines and validates a simple blockchain from a flat text file of transactions.
+A .NET 10 console app that mines a single blockchain block from a flat text file of transactions.
 
 **Data flow:**
-1. `StudentBlockTasset.txt` → `BlockList.CreateNewBlockChain()` → mines each block → `BlockChain.csv`
-2. Each block contains 4 concatenated lines from the input file as its `Data` field.
-3. Input line format: `*sender pays recipient amount txid*`
+1. `BlockChainMain` reads `StudentBlockTasset.txt`, concatenates 4 lines into one `Data` string, constructs a `Block`, then calls `MineBlock`.
+2. Each valid hash found is appended to `Success.csv` as: `hash,previousHash,data,timestamp,nonce`.
+3. Ctrl+C triggers `CancellationToken` cancellation and optionally copies `Success.csv` to `History.csv`.
 
-**Hash format — important invariant:** Hashes are produced by `StringUtil.ApplySha256` using `SHA256.HashData` and formatted with `BitConverter.ToString`, which yields uppercase hex with dashes: `"AB-CD-EF-..."`. This non-standard format is used consistently across mining, validation, and CSV storage — do not change the format without regenerating the CSV.
+**Input line format:** `*sender pays recipient amount txid*`
 
-**Mining difficulty:** Controlled by `BlockList.difficulty` (currently 6). The mining target is computed as `difficulty + difficulty/2` leading characters of the zero-byte target string in the dash-separated format. For `difficulty=6`, the prefix checked is 9 characters (`"00-00-00-0"`). Both `MineBlock` and `IsChainValid` compute this the same way — they must stay in sync.
+**Mining — how difficulty maps to the byte-level target:**
+- `difficulty` (set in `BlockChainMain`, currently 9) controls how many leading hex zeros are required.
+- `zeroBytes = difficulty / 2` — number of full zero bytes checked.
+- `requireHalfByte = (difficulty % 2 != 0)` — if odd, the upper nibble of the next byte must also be zero.
+- Example: `difficulty=9` → 4 full zero bytes + upper nibble of byte 5 = 0, equivalent to 9 leading hex zeros.
+- `MeetsTarget` compares raw `SHA256` bytes (no string conversion in the hot path).
 
-**File I/O pattern:** All file handles are opened by helper methods (`OpenInputFile`, `OpenCSVInputFile`, `OpenOutputFile`) and consumed via `using` declarations in the calling method. `TextFieldParser` (from `Microsoft.VisualBasic.FileIO`) handles CSV parsing.
+**Parallelism:** `MineBlock` spawns one `Task` per `Environment.ProcessorCount` core. Each task owns a thread-local input buffer and stack-allocated hash/nonce buffers. Nonces are striped: thread `i` starts at `threadCount + i` and increments by `threadCount`. A `lock` ensures only the first valid result is recorded.
+
+**Hash format:** `SHA256.HashData` output formatted via `BitConverter.ToString` → uppercase hex with dashes (`"AB-CD-EF-..."`). Used consistently in the `Block` constructor and `MineBlock`'s `onHit` callback — do not change without regenerating `Success.csv`.
+
+**Key optimization in `MineBlock`:** The input buffer is laid out as `[prefix][nonce][suffix]`. The suffix (`Data`) is only copied into the buffer when the nonce's digit count changes, avoiding redundant writes on most iterations.
 
 **Class responsibilities:**
-- `Block` — entity + `CalculateHash()` + `MineBlock(difficulty)`
-- `BlockList` — `CreateNewBlockChain`, `ReadBlockChainFromFile`, `WriteBlockChainToFile`, `IsChainValid`
-- `StringUtil` — single static `ApplySha256(string)` method
-- `BlockChainMain` — entry point only; no application logic
+- `Block` — entity fields + `CalculateHash` (constructor) + `MineBlock` + `MeetsTarget`
+- `BlockChainMain` — entry point, file I/O, `CancellationTokenSource` wiring, `onHit` callback
+
+**Note:** `ILGPU` is listed as a package dependency but is not used in the current source.

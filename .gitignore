@@ -6,5 +6,6 @@ obj/
 # Legacy file
 OldBlock.txt
 
-# Backup file (save locally for redundancy)
+# Backup files (save locally for redundancy)
 Success_backup.csv
+Submission.csv
