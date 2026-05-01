@@ -20,7 +20,7 @@ namespace BlockChain
             Hash = BitConverter.ToString(SHA256.HashData(Encoding.UTF8.GetBytes(previousHash + TimeStamp + Nonce + Data)));
         }
 
-        public void MineBlock(int difficulty, Action<string, ulong>? onHit = null, CancellationToken stopToken = default)
+        public void MineBlock(int difficulty, bool halfPower, Action<string, ulong>? onHit = null, CancellationToken stopToken = default)
         {
             // 00 = One byte of zeros
             int zeroBytes = difficulty / 2;
@@ -31,8 +31,8 @@ namespace BlockChain
             byte[] staticPrefix = Encoding.UTF8.GetBytes(previousHash + TimeStamp);
             byte[] staticSuffix = Encoding.UTF8.GetBytes(Data);
 
-            // Use all CPU cores
-            int threadCount = Environment.ProcessorCount;
+            // Use CPU cores
+            int threadCount = halfPower ? Environment.ProcessorCount / 2 : Environment.ProcessorCount;
             Console.WriteLine($"Threads: {threadCount}\n");
 
             // Store the FIRST valid result found

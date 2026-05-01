@@ -11,17 +11,18 @@ namespace BlockChain
         const string BACKUP_FILE = @"Success_backup.csv"; // Not tracked by git
 
         const int BLOCKLINECOUNT = 4;
-        static int difficulty = 7; // number of zeros
+        static int difficulty = 9; // number of zeros
 
         static void Main(string[] args)
         {
-            Console.WriteLine("\nCreating a new block from data file.");
             StreamReader fileIn = File.OpenText(INPUT_FILE);
 
             string blockLines = ReadABlockOfData(fileIn);
             Block block = new Block(blockLines);
+            Console.WriteLine("\nCreated a new block from data file.");
 
-            Console.WriteLine($"\nMining block... (Ctrl+C to exit) \n");
+            Console.WriteLine("\nUse only half CPU power to mine the block? (y/n)");
+            bool halfPower = Console.ReadLine()?.Trim().ToLower() == "y";
 
             using var cts = new CancellationTokenSource();
 
@@ -35,8 +36,11 @@ namespace BlockChain
             using StreamWriter fileOut = new StreamWriter(OUTPUT_FILE, true); // append mode = true
             using StreamWriter fileBackup = new StreamWriter(BACKUP_FILE, true);
 
+            Console.WriteLine($"\nMining block... (Ctrl+C to exit) \n");
+
             block.MineBlock(
                 difficulty,
+                halfPower,
                 onHit: (hash, nonce) =>
                 {
                     Console.WriteLine($"Found hash!");
