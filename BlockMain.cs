@@ -11,7 +11,7 @@ namespace SimpleMineBlock
         const string BACKUP_FILE = @"Success_backup.csv"; // Not tracked by git
 
         const int BLOCKLINECOUNT = 4;
-        static int difficulty = 9; // number of zeros
+        static int difficulty = 7; // number of zeros
 
         static void Main(string[] args)
         {
@@ -21,7 +21,9 @@ namespace SimpleMineBlock
             Block block = new Block(blockLines);
             Console.WriteLine("\nCreated a new block from data file.");
 
-            Console.WriteLine("\nUse only half CPU power to mine the block? (y/n)");
+            Console.Write("\nChoose number of leading zeros (default is 7): ");
+            Console.WriteLine(int.TryParse(Console.ReadLine(), out difficulty) ? $"Difficulty set to {difficulty}." : $"Difficulty set to {difficulty = 7}.");
+            Console.Write("\nUse only half CPU power to mine the block? (y/n): ");
             bool halfPower = Console.ReadLine()?.Trim().ToLower() == "y";
 
             using var cts = new CancellationTokenSource();

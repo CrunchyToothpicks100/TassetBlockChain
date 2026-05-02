@@ -4,7 +4,7 @@ What is a blockchain? A blockchain is a chain of blocks. Each block contains tra
 
 ## What it does
 
-1. Take transaction data from StudentBlockTasset.txt
+1. Take transaction data from SimpleBlock.txt
 2. Use transaction data to create first block (first block will always have "0" as the previous hash)
 3. Mine the block over and over again, writing any successful output to Success.csv and Success_backup.csv (untracked)
 4. Does not terminate until you kill the terminal
