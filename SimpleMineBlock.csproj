@@ -10,10 +10,7 @@
 
   <ItemGroup>
     <Content Include="StudentBlockTasset.txt" />
+    <Content Include="SimpleBlock.txt" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="ILGPU" Version="1.5.3" />
-  </ItemGroup>
-
+	
 </Project>

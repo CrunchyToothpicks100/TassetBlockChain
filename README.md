@@ -1,4 +1,4 @@
-# TassetBlockChain
+# SimpleMineBlock
 
 What is a blockchain? A blockchain is a chain of blocks. Each block contains transaction data, a timestamp, and the hash (fingerprint) of a previous block. When you string these blocks together, you get a blockchain. But a block has to be verified before it is added. A computer must guess the nonce (billions of random numbers) until it finds one that, when combined with the transaction data, produces a hash (fingerprint) starting with a certain number of zeros. This is called "mining a block". This is a program I wrote for creating a simple block, and mining it.
 

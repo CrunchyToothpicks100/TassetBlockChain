@@ -2,11 +2,11 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace BlockChain
+namespace SimpleMineBlock
 {
-    class BlockChainMain
+    class BlockMain
     {
-        const string INPUT_FILE = @"StudentBlockTasset.txt";
+        const string INPUT_FILE = @"SimpleBlock.txt";
         const string OUTPUT_FILE = @"Success.csv";
         const string BACKUP_FILE = @"Success_backup.csv"; // Not tracked by git
 
@@ -53,7 +53,7 @@ namespace BlockChain
                 },
                 stopToken: cts.Token
             );
-            // fileOut is automatically closed here
+            // StreamWriters are automatically closed here due to 'using' statements
         }
 
         static string ReadABlockOfData(StreamReader fileIn)

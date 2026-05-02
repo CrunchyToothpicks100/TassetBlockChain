@@ -3,8 +3,9 @@
 bin/
 obj/
 
-# Legacy file
+# Legacy files
 OldBlock.txt
+StudentBlockTasset.txt
 
 # Backup files (save locally for redundancy)
 Success_backup.csv
