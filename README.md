@@ -4,7 +4,7 @@
 
 1. Take transaction data from StudentBlockTasset.txt
 2. Use transaction data to create first block (first block will always have "0" as the previous hash)
-3. Mine the block over and over again, writing any successful output to Success.csv
+3. Mine the block over and over again, writing any successful output to Success.csv and Success_backup.csv (untracked)
 4. Does not terminate until you kill the terminal
 
 ## Install and Run
@@ -14,9 +14,9 @@
 3. Extract to folder of choice
 4. Open terminal and `cd` into the repository
 5. Open BlockChainMain.cs and update the file paths, or difficulty
-6. Open Block.cs and change 'ProcessorCount / 2' to 'ProcessorCount' for full throttle
-7. Save and close text editors
-8. `dotnet run`
+6. Save and close text editors
+7. `dotnet run`
+8. When prompted, choose whether to mine at half CPU power (y/n)
 
 ## How is this different from 2BlockChain?
 
@@ -27,4 +27,4 @@ Some technical differences in the new Block.cs
 - Checks raw bytes directly via MeetsTarget(), comparing zero bytes and a half-nibble. No string allocation.
 - Precomputes the static prefix/suffix bytes once, reuses a single inputBuf, and uses stackalloc for the hash buffer and nonce chars. Zero heap allocation per iteration.
 - Threads run until the CancellationToken is cancelled. They record the first hit but keep mining until the caller stops them externally.
-- MineBlock(int difficulty, Action<string, ulong>? onHit, CancellationToken stopToken) - supports a callback on every valid hash found and cooperative cancellation
+- MineBlock(int difficulty, bool halfPower, Action<string, ulong>? onHit, CancellationToken stopToken) - halfPower halves the thread count at runtime; supports a callback on every valid hash found and cooperative cancellation
