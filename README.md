@@ -1,5 +1,7 @@
 # TassetBlockChain
 
+What is a blockchain? A blockchain is a chain of blocks. Each block contains transaction data, a timestamp, and the hash (fingerprint) of a previous block. When you string these blocks together, you get a blockchain. But a block has to be verified before it is added. A computer must guess the nonce (billions of random numbers) until it finds one that, when combined with the transaction data, produces a hash (fingerprint) starting with a certain number of zeros. This is called "mining a block". This is a program I wrote for creating a simple block, and mining it.
+
 ## What it does
 
 1. Take transaction data from StudentBlockTasset.txt
@@ -18,11 +20,7 @@
 7. `dotnet run`
 8. When prompted, choose whether to mine at half CPU power (y/n)
 
-## How is this different from 2BlockChain?
-
-2BlockChain builds a blockchain from a file using a set number of "lines" for each block. TassetBlockChain is not _really_ a blockchain. It takes one block and mines it over and over, writing all successful output until the user kills the process. The lack of termination is intentional. You might get really lucky and get a hash with more zeros than your chosen difficulty.
-
-Some technical differences in the new Block.cs
+## Optimizations
 - Spawns a set number of parallel tasks, each given their own nonce space
 - Checks raw bytes directly via MeetsTarget(), comparing zero bytes and a half-nibble. No string allocation.
 - Precomputes the static prefix/suffix bytes once, reuses a single inputBuf, and uses stackalloc for the hash buffer and nonce chars. Zero heap allocation per iteration.
